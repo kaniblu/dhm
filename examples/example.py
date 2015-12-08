@@ -82,7 +82,7 @@ def run():
     col_idxing = sch.leaves_list(col_Z)
     #make the dendrogram
 
-    col_labels = 50 * ['blah']
+    col_labels = [str(i) for i in range(50)]
 
     data = data[:,col_idxing][row_idxing,:]
 
@@ -90,8 +90,9 @@ def run():
     heatmap.row_labels = row_labels
     heatmap.col_labels = col_labels
     heatmap.title = 'An example heatmap'
-    heatmap.show()
+    heatmap.save("example.png")
 
+    print(data)
 
 
 

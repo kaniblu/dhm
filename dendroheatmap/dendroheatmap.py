@@ -452,6 +452,11 @@ class DendroHeatMap(object):
         cdict = dict([(element, __createGradientTuples(cold, neutral, hot, element)) for element in ["red", "green", "blue"]])
         return mpl.colors.LinearSegmentedColormap('custom_colormap', cdict, 256)
 
+    def save(self, fname):
+        self.resetPlot()
+        self.render_plot()
+        self.figure.savefig(fname)
+
     def __formatCoords(self, x, y):
         col = int(x + 0.5)
         row = int(y + 0.5)
