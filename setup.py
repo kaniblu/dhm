@@ -8,7 +8,7 @@ def readme():
 
 version = '1.0'
 
-setup(name='dhm',
+setup(name='dendroheatmap',
       version=version,
       description="Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters",
       long_description="""\

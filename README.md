@@ -3,7 +3,7 @@
 pydendroheatmap is registered as a package on PyPI, so to install, simply type
 
 ```bash
-pip install pydendroheatmap
+pip install dendroheatmap
 ```
 
 To install the package from source, download the repository, unpack and open a command line prompt in the unpackaged directory. Then simply type:
@@ -21,7 +21,7 @@ The data for the heat map should be either a numpy.ndarray or numpy.matrix objec
 data should be in the form of a (n-1) x 4 linkage matrix used in the scipy hierarchical clustering package.
 
 ```python
-import pydendroheatmap as pdh
+import dendroheatmap as pdh
 try: import cPickle as pickle
 except: import pickle
 
@@ -51,7 +51,7 @@ heatmap.export('awesome_heatmap_plot.png')
 To see a built-in example, run these commands in the python interpreter:
 
 ```python
-from pydendroheatmap import example
+from dendroheatmap import example
 example.run()
 ```
 
@@ -67,7 +67,4 @@ http://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-pytho
 Each time the DendroHeatMap object's `show()`, `export()`, and `render_plot()` functions are called,
 the plot will be reset and any changes that have been made to the plot's instance variables should be taken into account
 in the new plot.
-
-A special thanks to [Nathan Salomonis](http://www.cincinnatichildrens.org/bio/s/nathan-salomonis/) for posting the
-original example and figuring out much of the parameters for getting the plots in the correct position!
 
