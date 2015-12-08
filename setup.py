@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def readme():
     f = open('README.md','r')
@@ -6,21 +6,27 @@ def readme():
     f.close()
     return text
 
+version = '1.0'
+
 setup(name='dhm',
-      version='1.0',
-      description='Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters'
-                  ' as seen in https://github.com/themantalope/pydendroheatmap, which is based on'
-                  'http://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/',
-      url='https://github.com/kaniblu/dhm/',
+      version=version,
+      description="Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters",
+      long_description="""\
+Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters as seen in https://github.com/themantalope/pydendroheatmap, which is based onhttp://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/""",
+      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      keywords='dendroheatmap dendrogram heatmap',
       author='Kang Min Yoo',
       author_email='kaniblurous@gmail.com',
+      url='https://github.com/kaniblu/dhm/',
       license='MIT',
-      packages=['ydendroheatmap'],
-      setup_requires=['numpy',
-                      'scipy',
-                      'colour',
-            'matplotlib',],
-      install_requires = [],
-      long_description=readme(),
-      classifiers=['Topic :: Scientific/Engineering :: Visualization'],
-      include_package_data=True)
+      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      include_package_data=True,
+      zip_safe=True,
+      install_requires=[
+            'numpy',
+            'scipy',
+            'colour',
+            'matplotlib',
+      ],
+      entry_points="",
+      )
