@@ -6,17 +6,19 @@ def readme():
     f.close()
     return text
 
-setup(name='pydendroheatmap',
-      version='1.3',
+setup(name='dhm',
+      version='1.0',
       description='Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters'
-                  ' as seen in http://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/',
-      url='https://github.com/themantalope/pydendroheatmap',
-      author='Matt Antalek Jr',
-      author_email='matthew.antalek@northwestern.edu',
+                  ' as seen in https://github.com/themantalope/pydendroheatmap, which is based on'
+                  'http://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/',
+      url='https://github.com/kaniblu/dhm/',
+      author='Kang Min Yoo',
+      author_email='kaniblurous@gmail.com',
       license='MIT',
-      packages=['pydendroheatmap'],
+      packages=['ydendroheatmap'],
       setup_requires=['numpy',
                       'scipy',
+                      'colour',
             'matplotlib',],
       install_requires = [],
       long_description=readme(),

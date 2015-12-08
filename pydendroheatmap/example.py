@@ -86,7 +86,7 @@ def run():
 
     data = data[:,col_idxing][row_idxing,:]
 
-    heatmap = pdh.DendroHeatMap(heat_map_data=data,left_dendrogram=row_Z, top_dendrogram=col_Z)
+    heatmap = pdh.DendroHeatMap(heat_map_data=data,left_dendrogram=row_Z, top_dendrogram=col_Z, color_cold="#ffeda0", color_neutral="#feb24c", color_hot="#f03b20")
     heatmap.row_labels = row_labels
     heatmap.col_labels = col_labels
     heatmap.title = 'An example heatmap'
