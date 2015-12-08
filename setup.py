@@ -1,10 +1,12 @@
 from setuptools import setup, find_packages
 
+
 def readme():
-    f = open('README.md','r')
+    f = open('README.md', 'r')
     text = f.read()
     f.close()
     return text
+
 
 version = '1.0'
 
@@ -12,8 +14,8 @@ setup(name='dendroheatmap',
       version=version,
       description="Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters",
       long_description="""\
-Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters as seen in https://github.com/themantalope/pydendroheatmap, which is based onhttp://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/""",
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters as seen in https://github.com/themantalope/dendroheatmap, which is based onhttp://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/""",
+      classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='dendroheatmap dendrogram heatmap',
       author='Kang Min Yoo',
       author_email='kaniblurous@gmail.com',
@@ -23,10 +25,10 @@ Tool for creating heatmaps, where rows and columns are organized by hierarchical
       include_package_data=True,
       zip_safe=True,
       install_requires=[
-            'numpy',
-            'scipy',
-            'colour',
-            'matplotlib',
+          'numpy',
+          'scipy',
+          'colour',
+          'matplotlib',
       ],
       entry_points="",
       )

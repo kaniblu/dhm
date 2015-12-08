@@ -23,7 +23,7 @@
 
 
 import numpy as np
-import pydendroheatmap as pdh
+import dendroheatmap as pdh
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
