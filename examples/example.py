@@ -28,25 +28,18 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 
-def run():
-
-    print 'Here is the source for this example: '
-    print """
-    import numpy as np
-    import pyDendroHeatMap as pdh
-    import scipy.cluster.hierarchy as sch
-    import scipy.spatial.distance as ssd
+def test(n):
 
     #make up some data
-    data = np.random.normal(scale = 50,size=(50,50))
-    data[0:25,0:25] += 75
-    data[25:,25:] = np.random.poisson(lam=50,size=data[25:,25:].shape)
+    data = np.random.normal(scale=n, size=(n, n))
+    data[0:n / 2,0:n / 2] += 75
+    data[n / 2:, n / 2:] = np.random.poisson(lam=n,size=data[n / 2:, n / 2:].shape)
     #cluster the rows
     row_dist = ssd.squareform(ssd.pdist(data))
     row_Z = sch.linkage(row_dist)
     row_idxing = sch.leaves_list(row_Z)
 
-    row_labels = 50 * ['blah']
+    row_labels = ['bar{}'.format(i) for i in range(n)]
 
     #cluster the columns
     col_dist = ssd.squareform(ssd.pdist(data.T))
@@ -54,39 +47,11 @@ def run():
     col_idxing = sch.leaves_list(col_Z)
     #make the dendrogram
 
-    col_labels = 50 * ['blah']
+    col_labels = ['foo{}'.format(i) for i in range(n)]
 
     data = data[:,col_idxing][row_idxing,:]
 
-    heatmap = pdh.DendroHeatMap(heat_map_data=data, left_dendrogram=row_Z, top_dendrogram=col_Z)
-    heatmap.row_labels = row_labels
-    heatmap.col_labels = col_labels
-    heatmap.title = 'An example heatmap'
-    heatmap.show()
-    """
-
-    #make up some data
-    data = np.random.normal(scale = 50,size=(50,50))
-    data[0:25,0:25] += 75
-    data[25:,25:] = np.random.poisson(lam=50,size=data[25:,25:].shape)
-    #cluster the rows
-    row_dist = ssd.squareform(ssd.pdist(data))
-    row_Z = sch.linkage(row_dist)
-    row_idxing = sch.leaves_list(row_Z)
-
-    row_labels = 50 * ['blah']
-
-    #cluster the columns
-    col_dist = ssd.squareform(ssd.pdist(data.T))
-    col_Z = sch.linkage(col_dist)
-    col_idxing = sch.leaves_list(col_Z)
-    #make the dendrogram
-
-    col_labels = [str(i) for i in range(50)]
-
-    data = data[:,col_idxing][row_idxing,:]
-
-    heatmap = pdh.DendroHeatMap(heat_map_data=data,left_dendrogram=row_Z, top_dendrogram=col_Z, color_cold="#ffeda0", color_neutral="#feb24c", color_hot="#f03b20")
+    heatmap = pdh.DendroHeatMap(heat_map_data=data,left_dendrogram=row_Z, top_dendrogram=col_Z, color_cold="#ffeda0", color_neutral="#feb24c", color_hot="#f03b20", window_size="auto", color_legend_displayed=False, col_labels_color="#777777", row_labels_color="#777777")
     heatmap.row_labels = row_labels
     heatmap.col_labels = col_labels
     heatmap.title = 'An example heatmap'
@@ -94,7 +59,8 @@ def run():
 
     print(data)
 
-
+def run():
+    test(99)
 
 if __name__ == '__main__':
     run()

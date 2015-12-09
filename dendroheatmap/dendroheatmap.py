@@ -36,7 +36,7 @@ class DendroHeatMap(object):
     """
 
     def __init__(self, heat_map_data=None, left_dendrogram=None, top_dendrogram=None,
-                 window_height=10, window_width=14, color_bar_width=0.015,
+                 window_size="auto", color_bar_width=0.015,
                  left_dendro_x=0.05, left_dendro_y=0.22, left_dendro_width=0.2, left_dendro_height=0.6,
                  left_dendro_x_distance_to_row_cb=0.004, left_dendro_y_distance_to_col_cb=0.004,
                  top_dendro_x=0.273, top_dendro_y=0.843, top_dendro_width=0.5, top_dendro_height=0.117,
@@ -44,10 +44,10 @@ class DendroHeatMap(object):
                  col_cb_x=0.273, col_cb_y=0.824, col_cb_width=0.5, col_cb_height=0.015, col_cb_on=True,
                  heat_x=0.273, heat_y=0.22, heat_width=0.5, heat_height=0.6,
                  color_cold='blue', color_neutral='black', color_hot='red', cluster_colors=("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
-                 color_legend_x=0.07, color_legend_y=0.88, color_legend_width=0.2, color_legend_height=0.09,
+                 color_legend_displayed=True, color_legend_x=0.07, color_legend_y=0.88, color_legend_width=0.2, color_legend_height=0.09,
                  color_legend_ticks=7,
-                 row_labels=None, max_row_labels=100, row_labels_size=8,
-                 col_labels=None, max_col_labels=100, col_labels_size=8,
+                 row_labels=None, max_row_labels=100, row_labels_size=12, row_labels_color='black',
+                 col_labels=None, max_col_labels=100, col_labels_size=12, col_labels_color='black',
                  verbose=False):
 
         self.figure = None
@@ -59,8 +59,14 @@ class DendroHeatMap(object):
         self.left_dendrogram = left_dendrogram
 
         # set the default behaviors
-        self.window_height = window_height
-        self.window_width = window_width
+        self.window_size = window_size
+        if window_size == "auto":
+            self.window_width = len(heat_map_data)
+            self.window_height = len(heat_map_data)
+        else:
+            assert type(window_size) == list or type(window_size) == tuple
+            self.window_height = window_size[1]
+            self.window_width = window_size[0]
         self.color_bar_width = color_bar_width
 
         self.left_dendro_x = left_dendro_x
@@ -98,16 +104,19 @@ class DendroHeatMap(object):
         self.heat_width = heat_width
         self.heat_height = heat_height
 
+        self.color_legend_displayed = color_legend_displayed
         self.color_legend_x = color_legend_x
         self.color_legend_y = color_legend_y
         self.color_legend_width = color_legend_width
         self.color_legend_height = color_legend_height
         self.color_legend_ticks = color_legend_ticks
 
+        self.row_labels_color = row_labels_color
         self.row_labels = row_labels
         self.row_labels_size = row_labels_size
         self.max_row_labels = max_row_labels
 
+        self.col_labels_color = col_labels_color
         self.col_labels = col_labels
         self.col_labels_size = col_labels_size
         self.max_col_labels = max_col_labels
@@ -166,19 +175,23 @@ class DendroHeatMap(object):
             self.heat_map_cols = self.heat_map_data.shape[1]
 
             # add the from the labels to the figure
-            # print len(self.row_labels)
             for i in range(0, self.heat_map_rows):
                 if (self.row_labels):
                     if (len(self.row_labels) < self.max_row_labels):
-                        self.heat_map_axes.text(self.heat_map_cols - 0.5, i, ' ' + self.row_labels[i],
-                                                size=self.row_labels_size)
+                        self.heat_map_axes.text(self.heat_map_cols, i, self.row_labels[i],
+                                                color=self.row_labels_color,
+                                                size=self.row_labels_size,
+                                                verticalalignment='center')
 
             for i in range(0, self.heat_map_cols):
                 if (self.col_labels):
                     if (len(self.col_labels) < self.max_col_labels):
-                        self.heat_map_axes.text(i + 0.05, self.heat_map_rows - self.heat_map_rows - 0.5,
-                                                ' ' + self.col_labels[i], size=self.col_labels_size, rotation=270,
-                                                verticalalignment='top')
+                        self.heat_map_axes.text(i, -1, self.col_labels[i],
+                                                size=self.col_labels_size,
+                                                color=self.col_labels_color,
+                                                rotation=270,
+                                                verticalalignment='center',
+                                                horizontalalignment='center',)
 
 
         # plot the column colorbar
@@ -206,7 +219,7 @@ class DendroHeatMap(object):
             self.row_cb_axes.set_yticks([])
 
         # plot the color legend
-        if (not self.heat_map_data is None):
+        if (not self.heat_map_data is None and self.color_legend_displayed):
             self.color_legend_axes = self.figure.add_axes(
                 [self.color_legend_x, self.color_legend_y, self.color_legend_width, self.color_legend_height],
                 frame_on=showFrames)
