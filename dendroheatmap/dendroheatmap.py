@@ -46,8 +46,8 @@ class DendroHeatMap(object):
                  color_cold='blue', color_neutral='black', color_hot='red', cluster_colors=("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
                  color_legend_displayed=True, color_legend_x=0.07, color_legend_y=0.88, color_legend_width=0.2, color_legend_height=0.09,
                  color_legend_ticks=7,
-                 row_labels=None, max_row_labels=100, row_labels_size=12, row_labels_color='black',
-                 col_labels=None, max_col_labels=100, col_labels_size=12, col_labels_color='black',
+                 row_labels=None, max_row_labels=100, row_labels_size=12, row_labels_color='black', row_labels_family='monospace',
+                 col_labels=None, max_col_labels=100, col_labels_size=12, col_labels_color='black', col_labels_family='monospace',
                  verbose=False):
 
         self.figure = None
@@ -111,11 +111,13 @@ class DendroHeatMap(object):
         self.color_legend_height = color_legend_height
         self.color_legend_ticks = color_legend_ticks
 
+        self.row_labels_family = row_labels_family
         self.row_labels_color = row_labels_color
         self.row_labels = row_labels
         self.row_labels_size = row_labels_size
         self.max_row_labels = max_row_labels
 
+        self.col_labels_family = col_labels_family
         self.col_labels_color = col_labels_color
         self.col_labels = col_labels
         self.col_labels_size = col_labels_size
@@ -181,6 +183,7 @@ class DendroHeatMap(object):
                         self.heat_map_axes.text(self.heat_map_cols, i, self.row_labels[i],
                                                 color=self.row_labels_color,
                                                 size=self.row_labels_size,
+                                                family=self.row_labels_family,
                                                 verticalalignment='center')
 
             for i in range(0, self.heat_map_cols):
@@ -189,6 +192,7 @@ class DendroHeatMap(object):
                         self.heat_map_axes.text(i, -1, self.col_labels[i],
                                                 size=self.col_labels_size,
                                                 color=self.col_labels_color,
+                                                family=self.col_labels_family,
                                                 rotation=270,
                                                 verticalalignment='center',
                                                 horizontalalignment='center',)
