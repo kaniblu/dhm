@@ -27,8 +27,25 @@ import dendroheatmap as pdh
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
+def random_similarity(n):
 
-def test(n):
+    k = 10
+    cov = np.random.random((k, k))
+    cov[:k/2,:k/2] *= 2
+    cov[:k/2,k/2:] /= 2
+    cov[k/2:,:k/2] /= 2
+    cov[k/2:,k/2:] *= 2
+    points = np.random.multivariate_normal(mean=[0] * k, cov=cov, size=n)
+    data = ssd.squareform(ssd.pdist(points))
+    linkage = sch.linkage(data)
+    clusters = sch.fcluster(linkage, 0.9)
+    idxing = sch.leaves_list(linkage)
+    data = data[:,idxing][idxing,:]
+
+    dhm = pdh.DendroHeatMap(heat_map_data=data, left_dendrogram=linkage, top_dendrogram=linkage, heatmap_colors=("#ffeda0", "#feb24c", "#f03b20"), color_legend_displayed=False, left_dendrogram_displayed=False, label_color="#FF0000", top_dendrogram_clusters=clusters, dendrogram_color="#999999")
+    dhm.show()
+
+def random_distribution(n):
 
     #make up some data
     data = np.random.normal(scale=n, size=(n, n))
@@ -51,16 +68,14 @@ def test(n):
 
     data = data[:,col_idxing][row_idxing,:]
 
-    heatmap = pdh.DendroHeatMap(heat_map_data=data,left_dendrogram=row_Z, top_dendrogram=col_Z, color_cold="#ffeda0", color_neutral="#feb24c", color_hot="#f03b20", window_size="auto", color_legend_displayed=False, col_labels_color="#777777", row_labels_color="#777777")
+    heatmap = pdh.DendroHeatMap(heat_map_data=data,left_dendrogram=row_Z, top_dendrogram=col_Z, heatmap_colors=("#ffeda0", "#feb24c", "#f03b20"), window_size="auto", color_legend_displayed=False, label_color="#777777")
     heatmap.row_labels = row_labels
     heatmap.col_labels = col_labels
     heatmap.title = 'An example heatmap'
     heatmap.save("example.png")
 
-    print(data)
-
 def run():
-    test(99)
+    random_similarity(30)
 
 if __name__ == '__main__':
     run()

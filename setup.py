@@ -8,7 +8,7 @@ def readme():
     return text
 
 
-version = '1.2'
+version = '0.1'
 
 setup(name='dendroheatmap',
       version=version,

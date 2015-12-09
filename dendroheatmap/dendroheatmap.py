@@ -26,6 +26,7 @@ import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
 import numpy as np
 import random
+import functools
 from colour import Color
 
 
@@ -35,74 +36,55 @@ class DendroHeatMap(object):
     http://code.activestate.com/recipes/578175-hierarchical-clustering-heatmap-python/
     """
 
-    def __init__(self, heat_map_data=None, left_dendrogram=None, top_dendrogram=None,
-                 window_size="auto", color_bar_width=0.015,
-                 left_dendro_x=0.05, left_dendro_y=0.22, left_dendro_width=0.2, left_dendro_height=0.6,
-                 left_dendro_x_distance_to_row_cb=0.004, left_dendro_y_distance_to_col_cb=0.004,
-                 top_dendro_x=0.273, top_dendro_y=0.843, top_dendro_width=0.5, top_dendro_height=0.117,
-                 row_cb_x=0.254, row_cb_y=0.22, row_cb_width=0.015, row_cb_height=0.6, row_cb_on=True,
-                 col_cb_x=0.273, col_cb_y=0.824, col_cb_width=0.5, col_cb_height=0.015, col_cb_on=True,
-                 heat_x=0.273, heat_y=0.22, heat_width=0.5, heat_height=0.6,
-                 color_cold='blue', color_neutral='black', color_hot='red', cluster_colors=("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
+    def __init__(self, heat_map_data=None, left_dendrogram=None, top_dendrogram=None, margins=(0.05, 0.05, 0.05, 0.05),
+                 dendrogram_heights=(0.2, 0.2), dendrogram_margins=(0.02, 0.02), window_size="auto", color_bar_width=0.015, color_bars_displayed=False,
+                 heatmap_colors=('blue', 'black', 'red'), cluster_colors=("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00"),
                  color_legend_displayed=True, color_legend_x=0.07, color_legend_y=0.88, color_legend_width=0.2, color_legend_height=0.09,
-                 color_legend_ticks=7,
-                 row_labels=None, max_row_labels=100, row_labels_size=12, row_labels_color='black', row_labels_family='monospace',
-                 col_labels=None, max_col_labels=100, col_labels_size=12, col_labels_color='black', col_labels_family='monospace',
+                 color_legend_ticks=7, left_dendrogram_displayed=True, top_dendrogram_displayed=True,
+                 row_labels=None, col_labels=None, max_row_labels=100, label_size=12, label_color='black', label_family='monospace',
+                 max_col_labels=100, dendrogram_color='black', left_dendrogram_clusters=None, top_dendrogram_clusters=None,
                  verbose=False):
 
         self.figure = None
         self.verbose = verbose
 
-        # print 'should be moving into setter land....'
         self.heat_map_data = heat_map_data
         self.top_dendrogram = top_dendrogram
         self.left_dendrogram = left_dendrogram
 
-        # set the default behaviors
         self.window_size = window_size
         if window_size == "auto":
-            self.window_width = len(heat_map_data)
-            self.window_height = len(heat_map_data)
+            self.window_width = len(heat_map_data) / 2.0
+            self.window_height = len(heat_map_data) / 2.0
         else:
             assert type(window_size) == list or type(window_size) == tuple
             self.window_height = window_size[1]
             self.window_width = window_size[0]
         self.color_bar_width = color_bar_width
 
-        self.left_dendro_x = left_dendro_x
-        self.left_dendro_y = left_dendro_y
-        self.left_dendro_width = left_dendro_width
-        self.left_dendro_height = left_dendro_height
-        self.left_dendro_x_distance_to_row_cb = left_dendro_x_distance_to_row_cb
-        self.left_dendro_y_distance_to_col_cb = left_dendro_y_distance_to_col_cb
+        self.margin_left = margins[0]
+        self.margin_top = margins[1]
+        self.margin_right = margins[2]
+        self.margin_bottom = margins[3]
+        self.dendrogram_left_width = dendrogram_heights[0]
+        self.dendrogram_top_height = dendrogram_heights[1]
+        self.dendrogram_left_margin = dendrogram_margins[0]
+        self.dendrogram_top_margin = dendrogram_margins[0]
 
-        self.top_dendro_x = top_dendro_x
-        self.top_dendro_y = top_dendro_y
-        self.top_dendro_width = top_dendro_width
-        self.top_dendro_height = top_dendro_height
+        self.dendrogram_color = dendrogram_color
+        self.dendrogram_left_clusters = left_dendrogram_clusters
+        self.dendrogram_top_clusters = top_dendrogram_clusters
+        self.dendrogram_left_root, self.dendrogram_left_tree_map = (None, None) if left_dendrogram is None else sch.to_tree(left_dendrogram, True)
+        self.dendrogram_top_root, self.dendrogram_top_tree_map = (None, None) if top_dendrogram is None else sch.to_tree(top_dendrogram, True)
+        self.dendrogram_left_displayed = left_dendrogram_displayed
+        self.dendrogram_top_displayed = top_dendrogram_displayed
 
         assert type(cluster_colors) == list or type(cluster_colors) == tuple
         cluster_colors = list(cluster_colors)
         random.shuffle(cluster_colors)
 
+        self.cluster_colors = cluster_colors
         self.cluster_cb_colors = mpl.colors.ListedColormap(cluster_colors)
-
-        self.row_cb_x = row_cb_x
-        self.row_cb_y = row_cb_y
-        self.row_cb_width = row_cb_width
-        self.row_cb_height = row_cb_height
-        self.row_cb_on = row_cb_on
-
-        self.col_cb_x = col_cb_x
-        self.col_cb_y = col_cb_y
-        self.col_cb_width = col_cb_width
-        self.col_cb_height = col_cb_height
-        self.col_cb_on = col_cb_on
-
-        self.heat_x = heat_x
-        self.heat_y = heat_y
-        self.heat_width = heat_width
-        self.heat_height = heat_height
 
         self.color_legend_displayed = color_legend_displayed
         self.color_legend_x = color_legend_x
@@ -111,21 +93,19 @@ class DendroHeatMap(object):
         self.color_legend_height = color_legend_height
         self.color_legend_ticks = color_legend_ticks
 
-        self.row_labels_family = row_labels_family
-        self.row_labels_color = row_labels_color
-        self.row_labels = row_labels
-        self.row_labels_size = row_labels_size
-        self.max_row_labels = max_row_labels
+        self.color_bars_displayed = color_bars_displayed
 
-        self.col_labels_family = col_labels_family
-        self.col_labels_color = col_labels_color
+        self.label_family = label_family
+        self.label_color = label_color
+        self.row_labels = row_labels
+        self.label_size = label_size
+        self.max_row_labels = max_row_labels
         self.col_labels = col_labels
-        self.col_labels_size = col_labels_size
         self.max_col_labels = max_col_labels
 
-        color_cold = Color(color_cold)
-        color_neutral = Color(color_neutral)
-        color_hot = Color(color_hot)
+        color_cold = Color(heatmap_colors[0])
+        color_neutral = Color(heatmap_colors[1])
+        color_hot = Color(heatmap_colors[2])
 
         self.colormap = DendroHeatMap.__createColorMap(color_cold, color_neutral, color_hot)
 
@@ -137,6 +117,19 @@ class DendroHeatMap(object):
 
         self.exportDPI = 600
 
+    def __link_color_func(self, linkage_id, clusters, tree_map):
+        if self.dendrogram_top_clusters != None:
+            tree = tree_map[linkage_id]
+            children = tree.pre_order(lambda x: x.id)
+            assert len(children) > 0
+            cluster_id = clusters[children[0]]
+            isUnified = all(map(lambda x: clusters[x] == cluster_id, tree.pre_order(lambda x: x.id)))
+
+            if isUnified:
+                return self.cluster_colors[cluster_id % len(self.cluster_colors)]
+
+        return self.dendrogram_color
+
     def render_plot(self, showFrames=False):
         self.resetPlot()
 
@@ -146,60 +139,59 @@ class DendroHeatMap(object):
         self.figure = pylab.figure(figsize=[self.window_width, self.window_height])
 
         # plot the top dendrogram
-        if (not self.top_dendrogram is None):
+        if (not self.top_dendrogram is None and self.dendrogram_top_displayed):
             self.top_dendro_axes = self.figure.add_axes(
-                [self.top_dendro_x, self.top_dendro_y, self.top_dendro_width, self.top_dendro_height],
+                [self.margin_left + ((self.dendrogram_left_width + self.dendrogram_left_margin) if self.dendrogram_left_displayed else 0), self.margin_bottom + self.heatmap_height + self.dendrogram_top_margin, self.dendrogram_top_width, self.dendrogram_top_height],
                 frame_on=showFrames)
-            self.top_dendro_plot = sch.dendrogram(self.top_dendrogram)
+
+            self.top_dendro_plot = sch.dendrogram(self.top_dendrogram, link_color_func=lambda x: self.__link_color_func(x, self.dendrogram_top_clusters, self.dendrogram_top_tree_map))
             self.top_dendro_axes.set_xticks([])
             self.top_dendro_axes.set_yticks([])
             self.top_dendro_axes.set_title(self.top_dendro_title)
 
         # plot the left dendrogram
-        if (not self.left_dendrogram is None):
+        if (not self.left_dendrogram is None and self.dendrogram_left_displayed):
             self.left_dendro_axes = self.figure.add_axes(
-                [self.left_dendro_x, self.left_dendro_y, self.left_dendro_width, self.left_dendro_height],
+                [self.margin_left, self.margin_bottom, self.dendrogram_left_width, self.dendrogram_left_height],
                 frame_on=showFrames)
-            self.left_dendro_plot = sch.dendrogram(self.left_dendrogram, orientation='right')
+
+            self.left_dendro_plot = sch.dendrogram(self.left_dendrogram, orientation='right', link_color_func=lambda x: self.__link_color_func(x, self.dendrogram_left_clusters, self.dendrogram_left_tree_map))
             self.left_dendro_axes.set_xticks([])
             self.left_dendro_axes.set_yticks([])
             self.left_dendro_axes.set_title(self.left_dendro_title, rotation='vertical')
 
         # plot the heat map
         if (not self.heat_map_data is None):
-            self.heat_map_axes = self.figure.add_axes([self.heat_x, self.heat_y, self.heat_width, self.heat_height],
+            hm_w, hm_h = self.heatmap_size
+            self.heat_map_axes = self.figure.add_axes([self.margin_left + ((self.dendrogram_left_margin + self.dendrogram_left_width) if self.dendrogram_left_displayed else 0), self.margin_bottom, hm_w, hm_h],
                                                       frame_on=showFrames)
-            self.heat_map_plot = self.heat_map_axes.matshow(self.heat_map_data, aspect='auto', origin='lower',
+            self.heat_map_plot = self.heat_map_axes.matshow(self.heat_map_data, aspect='auto', origin='upper',
                                                             cmap=self.colormap, norm=self.cmap_norm)
-            self.heat_map_axes.set_xticks([])
-            self.heat_map_axes.set_yticks([])
+
+            if self.col_labels:
+                self.heat_map_axes.set_xticks(range(len(self.heat_map_data)))
+                self.heat_map_axes.set_xticklabels(self.col_labels, rotation=270, size=self.label_size,
+                                                    color=self.label_color,
+                                                    family=self.label_family)
+            else:
+                self.heat_map_axes.set_xticks([])
+
+            if self.row_labels:
+                self.heat_map_axes.set_yticks(range(len(self.heat_map_data)))
+                self.heat_map_axes.set_yticklabels(self.row_labels, color=self.label_color,
+                                                size=self.label_size,
+                                                family=self.label_family)
+            else:
+                self.heat_map_axes.set_yticks([])
+
+            self.heat_map_axes.xaxis.tick_bottom()
+            self.heat_map_axes.yaxis.tick_right()
             self.heat_map_rows = self.heat_map_data.shape[0]
             self.heat_map_cols = self.heat_map_data.shape[1]
 
-            # add the from the labels to the figure
-            for i in range(0, self.heat_map_rows):
-                if (self.row_labels):
-                    if (len(self.row_labels) < self.max_row_labels):
-                        self.heat_map_axes.text(self.heat_map_cols, i, self.row_labels[i],
-                                                color=self.row_labels_color,
-                                                size=self.row_labels_size,
-                                                family=self.row_labels_family,
-                                                verticalalignment='center')
-
-            for i in range(0, self.heat_map_cols):
-                if (self.col_labels):
-                    if (len(self.col_labels) < self.max_col_labels):
-                        self.heat_map_axes.text(i, -1, self.col_labels[i],
-                                                size=self.col_labels_size,
-                                                color=self.col_labels_color,
-                                                family=self.col_labels_family,
-                                                rotation=270,
-                                                verticalalignment='center',
-                                                horizontalalignment='center',)
-
 
         # plot the column colorbar
-        if (not self.top_dendrogram is None):
+        if (not self.top_dendrogram is None and self.color_bars_displayed):
             self.col_cb_axes = self.figure.add_axes(
                 [self.col_cb_x, self.col_cb_y, self.col_cb_width, self.col_cb_height], frame_on=True)
             # print self.top_colorbar_labels.shape
@@ -211,7 +203,7 @@ class DendroHeatMap(object):
             self.col_cb_axes.set_yticks([])
 
         # plot the row colorbar
-        if (not self.left_dendrogram is None):
+        if (not self.left_dendrogram is None and self.color_bars_displayed):
             self.row_cb_axes = self.figure.add_axes(
                 [self.row_cb_x, self.row_cb_y, self.row_cb_width, self.row_cb_height], frame_on=True)
             # print self.left_colorbar_labels.shape
@@ -319,6 +311,26 @@ class DendroHeatMap(object):
     def col_labels(self):
         return self.__col_labels
 
+    @property
+    def heatmap_size(self):
+        return (1 - self.margin_left - self.margin_right - ((self.dendrogram_left_width - self.dendrogram_left_margin) if self.dendrogram_left_displayed else 0), 1 - self.margin_top - self.margin_bottom - ((self.dendrogram_top_height - self.dendrogram_top_margin) if self.dendrogram_top_displayed else 0))
+
+    @property
+    def heatmap_height(self):
+        return self.heatmap_size[1]
+
+    @property
+    def heatmap_width(self):
+        return self.heatmap_size[0]
+
+    @property
+    def dendrogram_left_height(self):
+        return self.heatmap_height
+
+    @property
+    def dendrogram_top_width(self):
+        return self.heatmap_width
+
     @col_labels.setter
     def col_labels(self, col_labels):
         if (not isinstance(self.heat_map_data, np.ndarray) or not isinstance(self.heat_map_data, np.matrix)):
@@ -387,73 +399,6 @@ class DendroHeatMap(object):
         else:
             raise TypeError(
                 'Dendrograms must be a n-1 x 4 numpy.ndarray as per the scipy.cluster.hierarchy implementation!')
-
-    def __RedBlackSkyBlue(self):
-        cdict = {'red': ((0.0, 0.0, 0.0),
-                         (0.5, 0.0, 0.1),
-                         (1.0, 1.0, 1.0)),
-
-                 'green': ((0.0, 0.0, 0.9),
-                           (0.5, 0.1, 0.0),
-                           (1.0, 0.0, 0.0)),
-
-                 'blue': ((0.0, 0.0, 1.0),
-                          (0.5, 0.1, 0.0),
-                          (1.0, 0.0, 0.0))
-                 }
-
-        my_cmap = mpl.colors.LinearSegmentedColormap('my_colormap', cdict, 256)
-        return my_cmap
-
-    def __RedBlackBlue(self):
-        cdict = {'red': ((0.0, 0.0, 0.0),
-                         (0.5, 0.0, 0.1),
-                         (1.0, 1.0, 1.0)),
-
-                 'green': ((0.0, 0.0, 0.0),
-                           (1.0, 0.0, 0.0)),
-
-                 'blue': ((0.0, 0.0, 1.0),
-                          (0.5, 0.1, 0.0),
-                          (1.0, 0.0, 0.0))
-                 }
-
-        my_cmap = mpl.colors.LinearSegmentedColormap('my_colormap', cdict, 256)
-        return my_cmap
-
-    def __RedBlackGreen(self):
-        cdict = {'red': ((0.0, 0.0, 0.0),
-                         (0.5, 0.0, 0.1),
-                         (1.0, 1.0, 1.0)),
-
-                 'blue': ((0.0, 0.0, 0.0),
-                          (1.0, 0.0, 0.0)),
-
-                 'green': ((0.0, 0.0, 1.0),
-                           (0.5, 0.1, 0.0),
-                           (1.0, 0.0, 0.0))
-                 }
-
-        my_cmap = mpl.colors.LinearSegmentedColormap('my_colormap', cdict, 256)
-        return my_cmap
-
-    def __YellowBlackBlue(self):
-        cdict = {'red': ((0.0, 0.0, 0.0),
-                         (0.5, 0.0, 0.1),
-                         (1.0, 1.0, 1.0)),
-
-                 'green': ((0.0, 0.0, 0.8),
-                           (0.5, 0.1, 0.0),
-                           (1.0, 1.0, 1.0)),
-
-                 'blue': ((0.0, 0.0, 1.0),
-                          (0.5, 0.1, 0.0),
-                          (1.0, 0.0, 0.0))
-                 }
-        ### yellow is created by adding y = 1 to RedBlackSkyBlue green last tuple
-        ### modulate between blue and cyan using the last y var in the first green tuple
-        my_cmap = mpl.colors.LinearSegmentedColormap('my_colormap', cdict, 256)
-        return my_cmap
 
     @staticmethod
     def __createColorMap(cold, neutral, hot):
