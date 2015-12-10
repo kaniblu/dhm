@@ -42,7 +42,7 @@ class DendroHeatMap(object):
                  color_legend_displayed=True, color_legend_x=0.07, color_legend_y=0.88, color_legend_width=0.2, color_legend_height=0.09,
                  color_legend_ticks=7, left_dendrogram_displayed=True, top_dendrogram_displayed=True,
                  row_labels=None, col_labels=None, max_row_labels=100, label_size=12, label_color='black', label_family='monospace',
-                 max_col_labels=100, dendrogram_color='black', left_dendrogram_clusters=None, top_dendrogram_clusters=None,
+                 max_col_labels=100, dendrogram_color='black',
                  verbose=False):
 
         self.figure = None
@@ -72,8 +72,8 @@ class DendroHeatMap(object):
         self.dendrogram_top_margin = dendrogram_margins[0]
 
         self.dendrogram_color = dendrogram_color
-        self.dendrogram_left_clusters = left_dendrogram_clusters
-        self.dendrogram_top_clusters = top_dendrogram_clusters
+        self.dendrogram_left_clusters = None
+        self.dendrogram_top_clusters = None
         self.dendrogram_left_root, self.dendrogram_left_tree_map = (None, None) if left_dendrogram is None else sch.to_tree(left_dendrogram, True)
         self.dendrogram_top_root, self.dendrogram_top_tree_map = (None, None) if top_dendrogram is None else sch.to_tree(top_dendrogram, True)
         self.dendrogram_left_displayed = left_dendrogram_displayed
@@ -129,6 +129,13 @@ class DendroHeatMap(object):
                 return self.cluster_colors[cluster_id % len(self.cluster_colors)]
 
         return self.dendrogram_color
+
+    def analyze_clusters(self, threshold=0.5):
+        if self.left_dendrogram is not None:
+            self.dendrogram_left_clusters = sch.fcluster(self.left_dendrogram, threshold)
+
+        if self.top_dendrogram is not None:
+            self.dendrogram_top_clusters = sch.fcluster(self.top_dendrogram, threshold)
 
     def render_plot(self, showFrames=False):
         self.resetPlot()

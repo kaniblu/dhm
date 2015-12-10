@@ -38,11 +38,11 @@ def random_similarity(n):
     points = np.random.multivariate_normal(mean=[0] * k, cov=cov, size=n)
     data = ssd.squareform(ssd.pdist(points))
     linkage = sch.linkage(data)
-    clusters = sch.fcluster(linkage, 0.9)
     idxing = sch.leaves_list(linkage)
     data = data[:,idxing][idxing,:]
 
-    dhm = pdh.DendroHeatMap(heat_map_data=data, left_dendrogram=linkage, top_dendrogram=linkage, heatmap_colors=("#ffeda0", "#feb24c", "#f03b20"), color_legend_displayed=False, left_dendrogram_displayed=False, label_color="#FF0000", top_dendrogram_clusters=clusters, dendrogram_color="#999999")
+    dhm = pdh.DendroHeatMap(heat_map_data=data, left_dendrogram=linkage, top_dendrogram=linkage, heatmap_colors=("#ffeda0", "#feb24c", "#f03b20"), color_legend_displayed=False, left_dendrogram_displayed=False, label_color="#FF0000", dendrogram_color="#999999")
+    dhm.analyze_clusters(0.9)
     dhm.show()
 
 def random_distribution(n):
