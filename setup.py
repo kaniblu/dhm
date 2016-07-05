@@ -8,9 +8,9 @@ def readme():
     return text
 
 
-version = '0.2'
+version = '0.1'
 
-setup(name='dendroheatmap',
+setup(name='pydendroheatmap-kmyoo',
       version=version,
       description="Tool for creating heatmaps, where rows and columns are organized by hierarchical clusters",
       long_description="""\

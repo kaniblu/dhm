@@ -26,6 +26,7 @@ import numpy as np
 import dendroheatmap as pdh
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
+import matplotlib as mpl
 
 def random_similarity(n):
 
@@ -41,7 +42,7 @@ def random_similarity(n):
     idxing = sch.leaves_list(linkage)
     data = data[:,idxing][idxing,:]
 
-    dhm = pdh.DendroHeatMap(heat_map_data=data, left_dendrogram=linkage, top_dendrogram=linkage, heatmap_colors=("#ffeda0", "#feb24c", "#f03b20"), color_legend_displayed=False, left_dendrogram_displayed=False, label_color="#FF0000", dendrogram_color="#999999")
+    dhm = pdh.DendroHeatMap(heat_map_data=data, left_dendrogram=linkage, top_dendrogram=linkage, heatmap_colors=("#ffeda0", "#feb24c", "#f03b20"), color_legend_displayed=False, left_dendrogram_displayed=False, label_color="#FF0000", dendrogram_color="#999999", heatmap_norm=mpl.colors.PowerNorm(2, data.min(), data.max()))
     dhm.analyze_clusters(0.9)
     dhm.show()
 
@@ -72,7 +73,7 @@ def random_distribution(n):
     heatmap.row_labels = row_labels
     heatmap.col_labels = col_labels
     heatmap.title = 'An example heatmap'
-    heatmap.save("example.png")
+    heatmap.show()#heatmap.save("example.png")
 
 def run():
     random_similarity(30)
